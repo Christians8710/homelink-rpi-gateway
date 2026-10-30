@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HomeLink · Verwaltung</title>
+<style>
+:root{font:16px system-ui,-apple-system,Segoe UI,sans-serif;color:#182c3b;background:#edf3f6}*{box-sizing:border-box}body{margin:0}header{background:#12364a;color:white;padding:24px max(24px,calc((100% - 1080px)/2));display:flex;justify-content:space-between;align-items:center;gap:20px}header p{margin:6px 0 0;color:#b9d4df;font-size:14px}h1{font-size:24px;margin:0}h2{font-size:19px;margin:0 0 20px}main{max-width:1128px;margin:auto;padding:24px}.grid{display:grid;grid-template-columns:1.2fr 1fr;gap:22px}.card{background:white;border:1px solid #dce6eb;border-radius:12px;padding:24px;margin-bottom:22px}.login{max-width:440px;margin:7vh auto}label{display:block;font-size:14px;font-weight:600;margin:18px 0 6px}input,select,button{font:inherit}input,select{width:100%;border:1px solid #abbec9;border-radius:6px;padding:11px;background:white;color:#182c3b}input[type=checkbox]{width:auto;vertical-align:middle;margin-right:8px}button{border:0;border-radius:6px;padding:11px 17px;background:#087c87;color:white;cursor:pointer;font-weight:600}button:disabled{opacity:.5;cursor:wait}.secondary{background:#e9f1f5;color:#24495d}.header-button{background:#285466;color:white}.buttons{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}.small{color:#597080;font-size:13px;line-height:1.6}#notice{display:none;padding:14px 18px;background:#e2f3ed;border:1px solid #90c6b3;border-radius:8px;margin-bottom:22px;white-space:pre-wrap}#notice.error{background:#fff1eb;border-color:#e6ac94;color:#803716}.metrics{display:grid;grid-template-columns:1fr 1fr;gap:18px}.metric span{display:block;color:#597080;font-size:13px;margin-bottom:5px}.metric strong{font-size:16px;overflow-wrap:anywhere}pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:400px;overflow:auto;font:12px/1.6 ui-monospace,Consolas,monospace;background:#112c3b;color:#d4e7ef;padding:16px;border-radius:6px}code{font-family:ui-monospace,Consolas,monospace}.connection{font:14px ui-monospace,Consolas,monospace;background:#edf4f7;border-radius:6px;padding:12px;overflow-wrap:anywhere;margin-top:16px}.empty{color:#8b4a24}.device{padding:10px 0;border-top:1px solid #e7edf0;font-size:13px;overflow-wrap:anywhere}.badge{font-size:12px;border-radius:30px;background:#e2f3ed;color:#186d50;padding:5px 10px}.offline{background:#fff0e6;color:#94471b}[hidden]{display:none!important}details summary{cursor:pointer;font-weight:600}@media(max-width:760px){.grid{grid-template-columns:1fr}header{padding:20px}main{padding:16px}.card{padding:20px}.metrics{gap:14px}}
+</style>
+</head>
+<body>
+<header><div><h1>HomeLink</h1><p>Zigbee &amp; Homematic verbinden</p></div><button id="logout" class="header-button" hidden>Abmelden</button></header>
+<main>
+<div id="notice" role="status" aria-live="polite"></div>
+<section class="card login" id="loginCard">
+<h2>Admin-Anmeldung</h2><p class="small">Die Zugangsdaten stehen in der Datei „Pi-Zigbee-Gateway-Admin-Zugangsdaten.txt“.</p>
+<form id="loginForm"><label for="username">Benutzername</label><input id="username" autocomplete="username" value="admin" required>
+<label for="loginPassword">Admin-Passwort</label><input id="loginPassword" type="password" autocomplete="current-password" required maxlength="256">
+<div class="buttons"><button type="submit">Anmelden</button></div></form>
+</section>
+<div id="dashboard" hidden>
+<nav class="buttons" style="margin:0 0 22px"><button id="tabZigbee">Zigbee · USB</button><button id="tabHomematic" class="secondary">Homematic · GPIO</button><button id="tabSystem" class="secondary">System · Updates</button></nav>
+<div class="grid" id="zigbeePanel">
+<div>
+<section class="card"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:22px"><h2 style="margin:0">Gateway-Status</h2><span id="serviceBadge" class="badge">Wird geladen</span></div>
+<div class="metrics"><div class="metric"><span>Gerät</span><strong id="hostname">–</strong></div><div class="metric"><span>ser2net</span><strong id="serVersion">–</strong></div><div class="metric"><span>USB-Dongle</span><strong id="usbStatus">–</strong></div><div class="metric"><span>TCP-Port</span><strong id="portStatus">–</strong></div></div>
+<div class="connection" id="endpoint">–</div><p class="small">Diesen Wert in Zigbee2MQTT unter <b>serial → port</b> eintragen. Beim SONOFF ZBDongle-P ist der Adaptertyp <b>zstack</b>.</p>
+<div class="buttons"><button id="refresh" class="secondary">Status aktualisieren</button><button id="restart" class="secondary">ser2net neu starten</button></div>
+</section>
+<section class="card"><h2>USB- und Port-Einstellungen</h2>
+<form id="configForm"><label for="device">USB-Seriell-Adapter</label><select id="device" required></select><p class="small">Die dauerhafte Gerätekennung wird bevorzugt. Sie bleibt normalerweise auch nach einem Wechsel der USB-Buchse gleich.</p>
+<label for="tcpPort">TCP-Port für Zigbee2MQTT</label><input id="tcpPort" type="number" min="1024" max="65535" required>
+<label for="baudrate">Baudrate</label><select id="baudrate"><option>9600</option><option>19200</option><option>38400</option><option>57600</option><option>115200</option><option>230400</option><option>460800</option></select>
+<label><input id="rtscts" type="checkbox">RTS/CTS-Flusskontrolle aktivieren</label><p class="small">Für den SONOFF ZBDongle-P: 115200 Baud und RTS/CTS ausgeschaltet. Speichern unterbricht die Verbindung kurz. Einen geänderten TCP-Port auch in Zigbee2MQTT übernehmen.</p>
+<div class="buttons"><button type="submit">Speichern und anwenden</button><button id="scan" type="button" class="secondary">USB-Geräte neu suchen</button></div></form>
+</section>
+</div>
+<div>
+<section class="card"><h2>Erkannte USB-Geräte</h2><div id="devices"></div><details style="margin-top:18px"><summary>Alle USB-Geräte anzeigen</summary><pre id="usbList">–</pre></details><p class="small">Hier wird der serielle USB-Anschluss zugeordnet. Die Stromversorgung einzelner USB-Buchsen wird nicht geschaltet.</p></section>
+<section class="card"><h2>Dienstprotokoll</h2><button id="logs" class="secondary">Protokoll laden</button><pre id="logText">Noch nicht geladen.</pre></section>
+<section class="card"><details><summary>Admin-Passwort ändern</summary><form id="passwordForm"><label for="currentPassword">Bisheriges Admin-Passwort</label><input id="currentPassword" type="password" autocomplete="current-password" required maxlength="256"><label for="newPassword">Neues Passwort · mindestens 12 Zeichen</label><input id="newPassword" type="password" autocomplete="new-password" minlength="12" maxlength="128" required><label for="repeatPassword">Neues Passwort wiederholen</label><input id="repeatPassword" type="password" autocomplete="new-password" minlength="12" maxlength="128" required><div class="buttons"><button>Passwort ändern</button></div></form></details><p class="small">Das Admin-Passwort gilt für diese Webseite. Das SSH-Passwort bleibt unverändert.</p></section>
+<p class="small" id="adminVersion"></p>
+</div>
+</div>
+<section id="rfPanel" hidden>
+<div class="grid"><div>
+<section class="card"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:20px"><h2 style="margin:0">Homematic-Funkbrücke</h2><span id="rfBadge" class="badge offline">Wird geladen</span></div>
+<p id="rfMessage">Status wird geladen.</p><div class="metrics"><div class="metric"><span>OpenCCU verbunden</span><strong id="rfPeer">–</strong></div><div class="metric"><span>Weiterleitung</span><strong id="rfActive">–</strong></div><div class="metric"><span>Vom Funkmodul</span><strong id="rfRx">0 Byte</strong></div><div class="metric"><span>Zum Funkmodul</span><strong id="rfTx">0 Byte</strong></div></div>
+<div class="buttons"><button id="rfRefresh" class="secondary">Status aktualisieren</button><button id="rfRestart" class="secondary">Funkbrücke neu starten</button></div>
+<p class="small">Verbindungsstatus und Datenverkehr zwischen OpenCCU und Funkmodul.</p></section>
+<section class="card"><h2>Verbindung zur OpenCCU</h2><form id="rfForm"><label><input id="rfEnabled" type="checkbox">Homematic-Funkbrücke aktivieren</label><label for="rfCcu">IP-Adresse deiner OpenCCU · optional</label><input id="rfCcu" placeholder="z. B. 10.15.10.20" inputmode="decimal"><p class="small">Mit einer IP wird nur diese OpenCCU zugelassen. Ein leeres Feld erlaubt eine OpenCCU im direkt angeschlossenen privaten Heimnetz. Zugriff aus dem Einrichtungs-WLAN ist gesperrt.</p><div class="buttons"><button>Speichern und anwenden</button></div></form>
+<p class="small">HB-RF-ETH-Protokoll über UDP-Port <b>3008</b>. Die eigentliche OpenCCU bleibt auf deinem anderen Rechner. Zigbee verwendet weiterhin TCP-Port 8888.</p></section>
+</div><div>
+<section class="card"><h2>OpenCCU anbinden</h2><p>In deiner OpenCCU unter <b>Erweiterte Einstellungen → IP-Adresse (HB-RF-ETH)</b> diese Pi-Adresse eintragen:</p><div class="connection" id="rfEndpoint">–</div><p class="small">Danach OpenCCU neu starten.</p></section>
+<section class="card"><h2>Funkbrücken-Protokoll</h2><button id="rfLogs" class="secondary">Protokoll laden</button><pre id="rfLog">Noch nicht geladen.</pre></section>
+</div></div>
+</section>
+<section id="systemPanel" hidden>
+<div class="grid"><div>
+<section class="card"><h2>HomeLink aktualisieren</h2><div class="metric"><span>Installierte Version</span><strong id="installedVersion">1.0.0</strong></div>
+<form id="uploadForm"><label for="updateFile">HomeLink-Updatepaket</label><input id="updateFile" type="file" accept=".hlupdate" required><div class="buttons"><button>Datei hochladen und prüfen</button></div></form>
+<p class="small">Signierte HomeLink-Datei im Format .hlupdate auswählen.</p>
+<div id="candidateBox" hidden><h3 id="candidateVersion"></h3><p id="candidateSummary" class="small"></p><pre id="updateChanges"></pre><div class="buttons"><button id="installUpdate" disabled>Update installieren</button></div></div>
+</section>
+<section class="card"><h2>Updateverlauf</h2><p id="updateMessage">Noch kein Update gestartet.</p><progress id="updateProgress" max="100" value="0" style="width:100%;height:14px"></progress><details style="margin-top:18px"><summary>Installationsprotokoll</summary><pre id="updateLog">Noch keine Einträge.</pre></details></section>
+</div><div>
+<section class="card"><h2>GitHub-Updates</h2><form id="repositoryForm"><label for="repository">Repository</label><input id="repository" placeholder="Benutzername/Repository" autocomplete="off"><label><input id="prereleases" type="checkbox" checked>Testversionen berücksichtigen</label><div class="buttons"><button class="secondary">Updatequelle speichern</button></div></form><div class="buttons"><button id="checkUpdates" class="secondary" disabled>Nach Updates suchen</button><button id="downloadUpdate" hidden>Herunterladen und prüfen</button></div><p id="githubMessage" class="small">GitHub-Repository noch nicht eingerichtet.</p></section>
+<section class="card"><h2>Softwareinformationen</h2><p>HomeLink verbindet Zigbee und Homematic über dein Netzwerk.</p><p><a href="/admin/licenses">Lizenzen &amp; Quellen ansehen</a></p></section>
+</div></div>
+</section>
+</div>
+</main>
+<footer style="max-width:1080px;margin:0 auto;padding:0 24px 28px;color:#597080;font-size:13px">HomeLink · <span id="footerVersion">1.0.0</span> · <a href="/admin/licenses" style="color:inherit">Lizenzen &amp; Quellen</a></footer>
+<script>
+const $=id=>document.getElementById(id); let csrf='', config=null;
+let updateCandidate=null,updatePolling=false;
+function showTab(name){for(const [id,key] of [['zigbeePanel','zigbee'],['rfPanel','homematic'],['systemPanel','system']])$(id).hidden=key!==name;for(const [id,key] of [['tabZigbee','zigbee'],['tabHomematic','homematic'],['tabSystem','system']])$(id).className=key===name?'':'secondary';sessionStorage.setItem('homelinkTab',name);}
+function updateDisplay(d){$('updateMessage').textContent=d.message||'Noch kein Update gestartet.';$('updateProgress').value=d.progress||0;$('updateLog').textContent=d.log||'Noch keine Einträge.';}
+function candidate(d){updateCandidate=d;$('candidateBox').hidden=false;$('candidateVersion').textContent='HomeLink '+d.version;$('candidateSummary').textContent='Signatur und Kompatibilität geprüft.';$('updateChanges').textContent=d.changes||'';$('installUpdate').disabled=false;updateDisplay(d);}
+async function loadUpdates(){const d=await api('update/state');$('installedVersion').textContent=d.version;$('footerVersion').textContent=d.version;$('repository').value=d.config.repository;$('prereleases').checked=d.config.prereleases;$('checkUpdates').disabled=!d.config.repository;$('githubMessage').textContent=d.config.repository?'Updatequelle: '+d.config.repository:'GitHub-Repository noch nicht eingerichtet.';if(d.job){updateDisplay(d.job);if(d.job.phase==='ready')candidate(d.job);else{$('installUpdate').disabled=true;$('candidateBox').hidden=true;}if(['queued','verifying','backup','installing','checking','rollback'].includes(d.job.phase)&&!updatePolling)pollUpdate(d.job);}}
+async function pollUpdate(job){if(updatePolling)return;updatePolling=true;try{for(let i=0;i<900;i++){try{const r=await fetch('/admin/api/update/progress?id='+encodeURIComponent(job.id),{headers:{'X-Update-Token':job.token},cache:'no-store'});if(r.ok){const d=await r.json();updateDisplay(d);if(['success','failed'].includes(d.phase)){notice(d.message,d.phase==='failed');await loadStatus();await loadUpdates();return;}}}catch{}await new Promise(r=>setTimeout(r,1000));}notice('Der Updateprozess läuft möglicherweise weiter. Status später erneut laden.',true);}finally{updatePolling=false;}}
+async function loadRF(){const d=await api('rf/status');$('rfMessage').textContent=d.message;$('rfEnabled').checked=d.config.enabled;$('rfCcu').value=d.config.ccu_ip;$('rfPeer').textContent=d.live.peer||'Warte auf Verbindung';$('rfActive').textContent=d.live.active?'Aktiv':'Nicht aktiv';$('rfRx').textContent=(d.live.rx||0)+' Byte';$('rfTx').textContent=(d.live.tx||0)+' Byte';$('rfEndpoint').textContent=location.hostname;$('rfBadge').textContent=!d.uart_ready?'Neustart erforderlich':d.service==='active'?(d.live.peer?'Verbunden':'Warte auf OpenCCU'):'Deaktiviert';$('rfBadge').className='badge'+(d.service==='active'?'':' offline');$('rfRestart').disabled=!d.uart_ready;}
+function notice(text,error=false){$('notice').textContent=text;$('notice').className=error?'error':'';$('notice').style.display='block';}
+function showLogin(){csrf='';$('dashboard').hidden=true;$('logout').hidden=true;$('loginCard').hidden=false;}
+async function api(path,body){const options={cache:'no-store',headers:{}};if(body!==undefined){options.method='POST';options.headers={'Content-Type':'application/json','X-Admin-Token':csrf};options.body=JSON.stringify(body);}const r=await fetch('/admin/api/'+path,options);const d=await r.json();if(!r.ok){if(r.status===401)showLogin();throw Error(d.error||'Anfrage fehlgeschlagen.');}return d;}
+async function action(button,fn){button.disabled=true;try{await fn();}catch(e){notice(e.message,true);}finally{button.disabled=false;}}
+async function loadStatus(){const d=await api('status');config=d.config;$('hostname').textContent=d.hostname;$('serVersion').textContent=d.ser2net_version;$('usbStatus').textContent=d.device_present?'Angeschlossen':'Nicht gefunden';$('portStatus').textContent=d.config.port+(d.listening?' · bereit':' · nicht bereit');const okay=d.service==='active'&&d.listening&&d.device_present;$('serviceBadge').textContent=okay?'Bereit':'Prüfen';$('serviceBadge').className='badge'+(okay?'':' offline');$('endpoint').textContent='tcp://'+location.hostname+':'+d.config.port;$('tcpPort').value=d.config.port;$('baudrate').value=d.config.baudrate;$('rtscts').checked=d.config.rtscts;$('adminVersion').textContent='HomeLink '+d.admin_version;$('footerVersion').textContent=d.admin_version;}
+async function loadDevices(){const d=await api('devices');$('device').replaceChildren();$('devices').replaceChildren();for(const item of d.devices){const opt=new Option(item.name+(item.stable?' · dauerhaft':''),item.path);$('device').append(opt);const line=document.createElement('div');line.className='device';line.textContent=item.name+' → '+item.device;$('devices').append(line);}if(config&&!d.devices.some(x=>x.path===config.device))$('device').prepend(new Option(config.device+' · aktuell gespeichert',config.device));if(config)$('device').value=config.device;if(!d.devices.length){const p=document.createElement('p');p.className='empty';p.textContent='Kein USB-Seriell-Adapter erkannt. Bitte den Dongle am Pi anschließen.';$('devices').append(p);}$('usbList').textContent=d.usb||'Keine USB-Geräte gemeldet.';}
+async function dashboard(){await loadStatus();await loadDevices();$('dashboard').hidden=false;$('logout').hidden=false;$('loginCard').hidden=true;const tab=sessionStorage.getItem('homelinkTab');if(tab==='system'){await loadUpdates();showTab('system');}else if(tab==='homematic'){await loadRF();showTab('homematic');}else showTab('zigbee');}
+$('loginForm').onsubmit=e=>{e.preventDefault();action(e.submitter,async()=>{const d=await api('login',{username:$('username').value,password:$('loginPassword').value});csrf=d.csrf;$('loginPassword').value='';$('notice').style.display='none';await dashboard();});};
+$('refresh').onclick=()=>action($('refresh'),async()=>{await loadStatus();await loadDevices();});
+$('scan').onclick=()=>action($('scan'),loadDevices);
+$('restart').onclick=()=>{if(confirm('ser2net neu starten? Die Verbindung zu Zigbee2MQTT wird kurz unterbrochen.'))action($('restart'),async()=>{const d=await api('restart',{});notice(d.message);await loadStatus();});};
+$('configForm').onsubmit=e=>{e.preventDefault();if(!confirm('Einstellungen speichern und die Verbindung kurz neu starten?'))return;action(e.submitter,async()=>{const d=await api('config',{device:$('device').value,port:Number($('tcpPort').value),baudrate:Number($('baudrate').value),rtscts:$('rtscts').checked});notice(d.message);await loadStatus();await loadDevices();});};
+$('logs').onclick=()=>action($('logs'),async()=>{$('logText').textContent=(await api('log')).log||'Keine Einträge.';});
+$('logout').onclick=()=>action($('logout'),async()=>{await api('logout',{});showLogin();notice('Abgemeldet.');});
+$('passwordForm').onsubmit=e=>{e.preventDefault();action(e.submitter,async()=>{if($('newPassword').value!==$('repeatPassword').value)throw Error('Die neuen Passwörter stimmen nicht überein.');const d=await api('password',{current:$('currentPassword').value,password:$('newPassword').value});$('passwordForm').reset();showLogin();notice(d.message);});};
+$('tabZigbee').onclick=()=>showTab('zigbee');
+$('tabHomematic').onclick=()=>action($('tabHomematic'),async()=>{await loadRF();showTab('homematic');});
+$('tabSystem').onclick=()=>action($('tabSystem'),async()=>{await loadUpdates();showTab('system');});
+$('uploadForm').onsubmit=e=>{e.preventDefault();action(e.submitter,async()=>{const file=$('updateFile').files[0];if(!file||file.size>32*1024*1024)throw Error('Eine HomeLink-Datei bis 32 MiB auswählen.');const r=await fetch('/admin/api/update/upload',{method:'POST',headers:{'Content-Type':'application/octet-stream','X-Admin-Token':csrf},body:file});const d=await r.json();if(!r.ok)throw Error(d.error||'Upload fehlgeschlagen.');candidate(d);notice('Updatepaket geprüft. Installation kann gestartet werden.');});};
+$('installUpdate').onclick=()=>{if(!updateCandidate||!confirm('HomeLink '+updateCandidate.version+' installieren?'))return;action($('installUpdate'),async()=>{const d=await api('update/install',{id:updateCandidate.id});await pollUpdate(d);});};
+$('repositoryForm').onsubmit=e=>{e.preventDefault();action(e.submitter,async()=>{const d=await api('update/config',{repository:$('repository').value,prereleases:$('prereleases').checked});notice(d.message);await loadUpdates();});};
+$('checkUpdates').onclick=()=>action($('checkUpdates'),async()=>{const d=await api('update/check',{});$('githubMessage').textContent=d.name+(d.prerelease?' · Testversion':'');$('downloadUpdate').hidden=false;$('updateChanges').textContent=d.changes||'';});
+$('downloadUpdate').onclick=()=>action($('downloadUpdate'),async()=>{candidate(await api('update/download',{}));notice('GitHub-Update heruntergeladen und geprüft.');});
+$('rfRefresh').onclick=()=>action($('rfRefresh'),loadRF);
+$('rfLogs').onclick=()=>action($('rfLogs'),async()=>{$('rfLog').textContent=(await api('rf/log')).log||'Noch keine Einträge.';});
+$('rfForm').onsubmit=e=>{e.preventDefault();if(!confirm('Homematic-Einstellungen speichern? Eine bestehende OpenCCU-Verbindung wird kurz unterbrochen.'))return;action(e.submitter,async()=>{const d=await api('rf/config',{enabled:$('rfEnabled').checked,ccu_ip:$('rfCcu').value});notice(d.message);await loadRF();});};
+$('rfRestart').onclick=()=>{if(confirm('Die Homematic-Funkbrücke neu starten?'))action($('rfRestart'),async()=>{const d=await api('rf/restart',{});notice(d.message);await loadRF();});};
+(async()=>{try{csrf=(await api('session')).csrf;await dashboard();}catch(e){showLogin();if(!/anmelden/i.test(e.message))notice(e.message,true);}})();
+</script>
+</body>
+</html>
