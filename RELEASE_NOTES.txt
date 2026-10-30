@@ -1,0 +1,15 @@
+HomeLink 1.0.0 – erste öffentliche Veröffentlichung
+
+- Zigbee-Netzwerk-Gateway für SONOFF ZBDongle-P über TCP 8888
+- Homematic/Homematic-IP-Funkbrücke für RPI-RF-MOD über HB-RF-ETH / UDP 3008
+- Lokale, passwortgeschützte Webverwaltung
+- WLAN-Einrichtung und automatischer Einrichtungs-AP bei Verbindungsausfall
+- Individuelle WLAN- und Admin-Zugangsdaten pro Installation
+- Vorhandene SSH-Konten und WLAN-Profile bleiben erhalten
+- Signierte Webupdates mit Kompatibilitätsprüfung, Sicherung und Wiederherstellung
+- GitHub-Updates aus Christians8710/homelink-rpi-gateway
+- Lokale Lizenz- und Quellenseite
+
+Basis: Raspberry Pi 4 B, Raspberry Pi OS Lite 32-bit Trixie.
+ser2net mindestens 4.6.8; bei Bedarf baut der Installer die geprüfte Version.
+Die eigentlichen Zigbee2MQTT- und OpenCCU-Instanzen laufen weiterhin extern.
