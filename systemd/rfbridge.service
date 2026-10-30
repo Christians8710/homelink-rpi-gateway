@@ -1,0 +1,21 @@
+[Unit]
+Description=HomeLink Homematic HB-RF-ETH gateway
+After=network.target
+ConditionPathExists=/dev/serial0
+[Service]
+Type=simple
+ExecCondition=/usr/bin/python3 /opt/zigbee-gateway/rfbridge_runner.py --ready
+ExecStart=/usr/bin/python3 /opt/zigbee-gateway/rfbridge_runner.py
+Restart=on-failure
+RestartSec=10
+TimeoutStopSec=8
+RuntimeDirectory=rfbridge
+RuntimeDirectoryMode=0700
+UMask=0077
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+PrivateTmp=true
+[Install]
+WantedBy=multi-user.target

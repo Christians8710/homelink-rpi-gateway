@@ -1,0 +1,16 @@
+[Unit]
+Description=HomeLink Zigbee TCP gateway
+After=network.target
+[Service]
+User=ser2net
+Group=dialout
+ExecStart=/usr/sbin/ser2net -n -c /etc/ser2net.yaml
+Restart=always
+RestartSec=5
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/run/lock
+ProtectHome=true
+PrivateTmp=true
+[Install]
+WantedBy=multi-user.target

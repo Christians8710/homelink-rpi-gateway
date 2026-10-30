@@ -1,0 +1,23 @@
+[Unit]
+Description=HomeLink web administration and Wi-Fi setup
+After=NetworkManager.service
+Wants=NetworkManager.service
+[Service]
+Environment=LC_ALL=C.UTF-8
+ExecStartPre=-/usr/sbin/rfkill unblock wifi
+ExecStart=/usr/bin/python3 /opt/zigbee-gateway/portal.py
+Restart=always
+RestartSec=5
+UMask=0077
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/etc/NetworkManager/system-connections /etc/zigbee-gateway
+StateDirectory=homelink zigbee-gateway
+StateDirectoryMode=0700
+RuntimeDirectory=homelink-admin
+RuntimeDirectoryMode=0700
+RuntimeDirectoryPreserve=restart
+ProtectHome=true
+PrivateTmp=true
+[Install]
+WantedBy=multi-user.target
