@@ -1,0 +1,25 @@
+{
+  "version": "1.0.0",
+  "base": "Raspberry Pi OS Lite 32-bit Trixie 2026-10-06",
+  "base_sha256": "2c302771f34c67a0b7ae7aa2e0dcdd3eac660504be59193c011ba79d412e1632",
+  "environment": "Native ARM installation in a separate chroot on Raspberry Pi 4 B",
+  "checks": {
+    "public_installer": "passed",
+    "ser2net_4_6_8_build_and_install": "passed",
+    "homelink_package": "1:1.0.0-1",
+    "unique_per_device_credentials": "passed",
+    "existing_configuration_and_ssh_preservation": "passed",
+    "existing_wifi_profile_preservation": "passed",
+    "configuration_tests": 2,
+    "rf_protocol_tests": "passed",
+    "malformed_protocol_frames": 20000,
+    "systemd_unit_verification": "passed",
+    "shell_syntax": "passed",
+    "dpkg_audit": "passed"
+  },
+  "limits": [
+    "Services were not started in the chroot; physical radio devices were not exposed to it.",
+    "Simultaneous Zigbee and Homematic operation was confirmed on the preceding development build.",
+    "No long-term or multiple-device hardware test."
+  ]
+}
