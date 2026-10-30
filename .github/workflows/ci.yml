@@ -1,0 +1,27 @@
+name: checks
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  software:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.13'
+      - name: Compile Python sources
+        run: python -m compileall -q src tools tests
+      - name: Configuration and Wi-Fi preservation
+        run: python -m unittest discover -s tests -v
+      - name: RFBridge protocol
+        run: |
+          cc -O2 -Wall -Wextra -Werror rfbridge/test_protocol.c rfbridge/protocol.c -o /tmp/homelink-protocol-test
+          /tmp/homelink-protocol-test
+      - name: Shell syntax
+        run: |
+          for script in install.sh tools/build_ser2net.sh; do
+            bash -n "$script"
+          done
