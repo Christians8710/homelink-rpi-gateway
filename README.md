@@ -110,4 +110,16 @@ ser2net 4.6.8, individueller Zugangsdaten und Erhalt vorhandener Einstellungen.
 Der [Prüfbericht](docs/validation-1.0.0.json) beschreibt den Umfang.
 Das ersetzt keinen Langzeit- oder Mehrgeräte-Hardwaretest.
 
+## ❤️ Projekt unterstützen
+
+Dieses Projekt wird kostenlos zur Verfügung gestellt und kontinuierlich weiterentwickelt.
+
+Wenn dir die Software gefällt und du die Weiterentwicklung unterstützen möchtest, kannst du dies freiwillig über GitHub Sponsors tun.
+
+❤️ [**Projekt über GitHub Sponsors unterstützen**](https://github.com/sponsors/Christians8710)
+
+Deine Unterstützung hilft bei der Weiterentwicklung, Fehlerbehebung, Wartung und Umsetzung neuer Funktionen.
+
+Vielen Dank für deine Unterstützung!
+
 [Entwicklung und Release-Build](docs/development.md) · [Sicherheit](SECURITY.md)
